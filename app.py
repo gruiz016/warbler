@@ -149,9 +149,9 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    
+
     likes = Likes.query.all()
-    
+
     return render_template('users/show.html', user=user, messages=messages, likes=likes)
 
 
@@ -208,25 +208,26 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
+
 @app.route('/users/add_like/<int:message_id>', methods=['POST'])
 def add_like(message_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
-        
+
     likes = Likes.query.all()
-    
+
     for like in likes:
         if like.message_id == message_id:
             db.session.delete(like)
             db.session.commit()
             flash('Like Deleted!', 'danger')
             return redirect('/')
-        
-    like = Likes(user_id = g.user.id, message_id= message_id)
+
+    like = Likes(user_id=g.user.id, message_id=message_id)
     db.session.add(like)
     db.session.commit()
     flash('Like added!', 'success')
-    return redirect("/") 
+    return redirect("/")
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
@@ -269,7 +270,11 @@ def delete_user():
     do_logout()
 
     db.session.delete(g.user)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        flash('Please delete messages first!', 'danger')
+        return redirect('/')
 
     return redirect("/signup")
 
