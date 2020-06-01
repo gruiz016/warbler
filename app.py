@@ -267,11 +267,10 @@ def delete_user():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    do_logout()
-
-    db.session.delete(g.user)
     try:
+        db.session.delete(g.user)
         db.session.commit()
+        do_logout()
     except Exception:
         flash('Please delete messages first!', 'danger')
         return redirect('/')
